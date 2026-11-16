@@ -26,9 +26,8 @@ function main() {
 
   const clearButton = document.createElement("button");
   clearButton.textContent = "Clear Canvas";
-  clearButton.onclick = () => {
-    ctx.reset();
-  };
+  const eraserButton = document.createElement("button");
+  eraserButton.textContent = "Toggle Eraser";
 
   // applying styles
   for (const [key, value] of Object.entries(toolbarStyle)) {
@@ -39,12 +38,27 @@ function main() {
   // toolbar and its elements
   document.body.appendChild(toolbar);
   toolbar.appendChild(clearButton);
+  toolbar.appendChild(eraserButton);
 
   // drawing logic
   const ctx = canvas.getContext("2d");
+  const strokeColour = "black";
   let isDrawing = false;
   let x = 0;
   let y = 0;
+
+  // toolbar settings
+  let isErasing = false;
+  let penWidth = 1;
+  let eraserWidth = 100;
+
+  clearButton.onclick = () => {
+    ctx.reset();
+  };
+
+  eraserButton.onclick = () => {
+    isErasing = !isErasing;
+  };
 
   canvas.addEventListener("mousedown", (e) => {
     isDrawing = true;
@@ -71,8 +85,13 @@ function main() {
 
   function drawLine(context, x1, y1, x2, y2) {
     context.beginPath();
-    context.strokeStyle = "black";
-    context.lineWidth = 1;
+
+    context.globalCompositeOperation = isErasing
+      ? "destination-out"
+      : "source-over";
+
+    context.strokeStyle = strokeColour;
+    context.lineWidth = isErasing ? eraserWidth : penWidth;
     context.moveTo(x1, y1);
     context.lineTo(x2, y2);
     context.stroke();
