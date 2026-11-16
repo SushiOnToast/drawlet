@@ -23,12 +23,22 @@ function main() {
 
   // creating the toolbar
   const toolbar = document.createElement("div");
+
+  const clearButton = document.createElement("button");
+  clearButton.textContent = "Clear Canvas";
+  clearButton.onclick = () => {
+    ctx.reset();
+  };
+
+  // applying styles
   for (const [key, value] of Object.entries(toolbarStyle)) {
     toolbar.style[key] = value;
   }
 
   document.body.appendChild(canvas);
+  // toolbar and its elements
   document.body.appendChild(toolbar);
+  toolbar.appendChild(clearButton);
 
   // drawing logic
   const ctx = canvas.getContext("2d");
