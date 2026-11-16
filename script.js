@@ -1,7 +1,7 @@
 function main() {
   // styles
   const toolbarStyle = {
-    width: "60rem",
+    width: "fit-content",
     height: "auto",
     position: "absolute",
     top: "1rem",
@@ -52,12 +52,15 @@ function main() {
 
   // creating the toolbar
   const toolbar = document.createElement("div");
+  const hide_toolbar_button = document.createElement("button");
+  hide_toolbar_button.textContent = "Hide Toolbar";
 
   const clearButton = document.createElement("button");
   clearButton.textContent = "Clear";
   const eraserButton = document.createElement("button");
   eraserButton.textContent = "Eraser: Off";
 
+  // containers with labels
   const colourPicker = document.createElement("input");
   colourPicker.type = "color";
   colourPicker.id = "pen-colour";
@@ -90,8 +93,17 @@ function main() {
   Object.assign(toolbar.style, toolbarStyle);
   toolbar.style.pointerEvents = "auto";
 
-  for (const button of [clearButton, eraserButton]) {
+  hide_toolbar_button.style.position = "absolute";
+  hide_toolbar_button.style.top = "1rem";
+  hide_toolbar_button.style.left = "1rem";
+  hide_toolbar_button.style.pointerEvents = "auto";
+
+  for (const button of [clearButton, eraserButton, hide_toolbar_button]) {
     Object.assign(button.style, buttonStyle);
+
+    if (button === hide_toolbar_button) {
+      button.style.backgroundColor = "white";
+    }
 
     button.addEventListener("mouseenter", () => {
       if (button === eraserButton && isErasing) return;
@@ -100,10 +112,15 @@ function main() {
 
     button.addEventListener("mouseleave", () => {
       if (button === eraserButton && isErasing) return;
-
+      if (button === hide_toolbar_button) {
+        button.style.backgroundColor = "#ffffff";
+        return;
+      }
       button.style.backgroundColor = "#f9fafb";
     });
   }
+
+  hide_toolbar_button.style.boxShadow = "0 4px 20px rgba(0,0,0,0.10)";
 
   penWidthSlider.style.width = "90px";
   eraserWidthSlider.style.width = "90px";
@@ -113,7 +130,7 @@ function main() {
     eraserWidthSliderLabel,
     colourPickerLabel,
   ]) {
-    label.style.fontSize = "0.75rem";
+    label.style.fontSize = "0.7rem";
     label.style.fontFamily = "monospace";
     label.style.color = "#6b7280";
     label.style.whiteSpace = "nowrap";
@@ -123,16 +140,31 @@ function main() {
   colourPicker.style.borderRadius = "8px";
 
   // append all elements
+  const inputLabelPairs = [
+    [colourPickerLabel, colourPicker],
+    [penWidthSliderLabel, penWidthSlider],
+    [eraserWidthSliderLabel, eraserWidthSlider],
+  ];
+
   shadow.appendChild(canvas);
   shadow.appendChild(toolbar);
+  shadow.appendChild(hide_toolbar_button);
   toolbar.appendChild(clearButton);
   toolbar.appendChild(eraserButton);
-  toolbar.appendChild(colourPickerLabel);
-  toolbar.appendChild(colourPicker);
-  toolbar.appendChild(penWidthSliderLabel);
-  toolbar.appendChild(penWidthSlider);
-  toolbar.appendChild(eraserWidthSliderLabel);
-  toolbar.appendChild(eraserWidthSlider);
+
+  for (const pair of inputLabelPairs) {
+    pairDiv = document.createElement("div");
+    pairDiv.style.display = "flex";
+    pairDiv.style.flexDirection = "column";
+    pairDiv.style.alignItems = "center";
+    pairDiv.style.gap = "0.3rem";
+    pairDiv.style.padding = "0.2rem";
+
+    pairDiv.appendChild(pair[0]);
+    pairDiv.appendChild(pair[1]);
+
+    toolbar.appendChild(pairDiv);
+  }
 
   // drawing logic
   const ctx = canvas.getContext("2d");
@@ -146,8 +178,19 @@ function main() {
   let penWidth = Number(penWidthSlider.value);
   let eraserWidth = 100;
 
+  // button functionality
   clearButton.onclick = () => {
     ctx.reset();
+  };
+
+  hide_toolbar_button.onclick = () => {
+    if (toolbar.style.display === "flex") {
+      toolbar.style.display = "none";
+      hide_toolbar_button.textContent = "Show Toolbar";
+    } else {
+      toolbar.style.display = "flex";
+      hide_toolbar_button.textContent = "Hide Toolbar";
+    }
   };
 
   eraserButton.onclick = () => {
@@ -171,6 +214,7 @@ function main() {
     eraserWidthSliderLabel.textContent = "Eraser Thickness: " + eraserWidth;
   };
 
+  // canvas events
   canvas.addEventListener("mousedown", (e) => {
     isDrawing = true;
     x = e.offsetX;
