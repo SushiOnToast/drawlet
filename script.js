@@ -1,7 +1,17 @@
 function main() {
   // prevent spamming of bookmarklet
   const existing = document.getElementById("drawlet");
-  if (existing) return;
+  if (existing) {
+    const toolbar = existing.shadowRoot.querySelector("#drawlet-toolbar");
+    const toolbarToggle = existing.shadowRoot.querySelector(
+        "#drawlet-toolbar-toggle",
+      );
+
+    if (toolbar, toolbarToggle) {
+      hideToolbar(toolbar, toolbarToggle);
+    }
+    return;
+  }
 
   // styles
   const toolbarStyle = {
@@ -57,8 +67,11 @@ function main() {
 
   // creating the toolbar
   const toolbar = document.createElement("div");
-  const hide_toolbar_button = document.createElement("button");
-  hide_toolbar_button.textContent = "Hide Toolbar";
+  toolbar.id = "drawlet-toolbar";
+
+  const hideToolbarButton = document.createElement("button");
+  hideToolbarButton.id = "drawlet-toolbar-toggle";
+  hideToolbarButton.textContent = "Hide Toolbar";
 
   const clearButton = document.createElement("button");
   clearButton.textContent = "Clear";
@@ -98,15 +111,15 @@ function main() {
   Object.assign(toolbar.style, toolbarStyle);
   toolbar.style.pointerEvents = "auto";
 
-  hide_toolbar_button.style.position = "absolute";
-  hide_toolbar_button.style.top = "1rem";
-  hide_toolbar_button.style.left = "1rem";
-  hide_toolbar_button.style.pointerEvents = "auto";
+  hideToolbarButton.style.position = "absolute";
+  hideToolbarButton.style.top = "1rem";
+  hideToolbarButton.style.left = "1rem";
+  hideToolbarButton.style.pointerEvents = "auto";
 
-  for (const button of [clearButton, eraserButton, hide_toolbar_button]) {
+  for (const button of [clearButton, eraserButton, hideToolbarButton]) {
     Object.assign(button.style, buttonStyle);
 
-    if (button === hide_toolbar_button) {
+    if (button === hideToolbarButton) {
       button.style.backgroundColor = "white";
     }
 
@@ -117,7 +130,7 @@ function main() {
 
     button.addEventListener("mouseleave", () => {
       if (button === eraserButton && isErasing) return;
-      if (button === hide_toolbar_button) {
+      if (button === hideToolbarButton) {
         button.style.backgroundColor = "#ffffff";
         return;
       }
@@ -125,7 +138,7 @@ function main() {
     });
   }
 
-  hide_toolbar_button.style.boxShadow = "0 4px 20px rgba(0,0,0,0.10)";
+  hideToolbarButton.style.boxShadow = "0 4px 20px rgba(0,0,0,0.10)";
 
   penWidthSlider.style.width = "90px";
   eraserWidthSlider.style.width = "90px";
@@ -153,12 +166,12 @@ function main() {
 
   shadow.appendChild(canvas);
   shadow.appendChild(toolbar);
-  shadow.appendChild(hide_toolbar_button);
+  shadow.appendChild(hideToolbarButton);
   toolbar.appendChild(clearButton);
   toolbar.appendChild(eraserButton);
 
   for (const pair of inputLabelPairs) {
-    pairDiv = document.createElement("div");
+    const pairDiv = document.createElement("div");
     pairDiv.style.display = "flex";
     pairDiv.style.flexDirection = "column";
     pairDiv.style.alignItems = "center";
@@ -188,15 +201,17 @@ function main() {
     ctx.reset();
   };
 
-  hide_toolbar_button.onclick = () => {
+  function hideToolbar(toolbar, hideToolbarButton) {
     if (toolbar.style.display === "flex") {
       toolbar.style.display = "none";
-      hide_toolbar_button.textContent = "Show Toolbar";
+      hideToolbarButton.textContent = "Show Toolbar";
     } else {
       toolbar.style.display = "flex";
-      hide_toolbar_button.textContent = "Hide Toolbar";
+      hideToolbarButton.textContent = "Hide Toolbar";
     }
-  };
+  }
+
+  hideToolbarButton.onclick = () => hideToolbar(toolbar, hideToolbarButton);
 
   eraserButton.onclick = () => {
     isErasing = !isErasing;
