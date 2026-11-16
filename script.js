@@ -1,7 +1,7 @@
 function main() {
   // styles
   const toolbarStyle = {
-    width: "20rem",
+    width: "40rem",
     height: "2.5rem",
     position: "absolute",
     top: "0",
@@ -25,9 +25,9 @@ function main() {
   const toolbar = document.createElement("div");
 
   const clearButton = document.createElement("button");
-  clearButton.textContent = "Clear Canvas";
+  clearButton.textContent = "Clear";
   const eraserButton = document.createElement("button");
-  eraserButton.textContent = "Toggle Eraser";
+  eraserButton.textContent = "Eraser: Off";
 
   const colourPicker = document.createElement("input");
   colourPicker.type = "color";
@@ -62,8 +62,8 @@ function main() {
     toolbar.style[key] = value;
   }
 
+  // append all elements
   document.body.appendChild(canvas);
-  // toolbar and its elements
   document.body.appendChild(toolbar);
   toolbar.appendChild(clearButton);
   toolbar.appendChild(eraserButton);
@@ -92,6 +92,8 @@ function main() {
 
   eraserButton.onclick = () => {
     isErasing = !isErasing;
+    eraserButton.textContent = isErasing ? "Eraser: On" : "Eraser: Off";
+    eraserButton.style.backgroundColor = isErasing ? "LightGreen" : "";
   };
 
   colourPicker.oninput = (e) => {
