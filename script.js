@@ -1,15 +1,34 @@
 function main() {
   // styles
   const toolbarStyle = {
-    width: "40rem",
-    height: "2.5rem",
+    width: "fit-content",
+    height: "auto",
     position: "absolute",
-    top: "0",
+    top: "1rem",
     left: "50%",
     transform: "translateX(-50%)", // translates by own element length
     zIndex: "3",
-    boxShadow: "rgba(149, 157, 165, 0.2) 0px 8px 24px",
-    border: "solid rgba(149, 157, 165, 0.2)",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
+    border: "1px solid #e5e7eb",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "1rem",
+    padding: "0.75rem 1.25rem",
+    backgroundColor: "white",
+    borderRadius: "12px",
+  };
+
+  const buttonStyle = {
+    padding: "o.5rem 0.9rem",
+    border: "1px solid #e5e7eb",
+    borderRadius: "8px",
+    backgroundColor: "#f9fafb",
+    color: "#374151",
+    fontSize: "0.85rem",
+    fontWeight: "500",
+    cursor: "pointer",
+    transition: "background-color 0.2s",
   };
 
   // creating the canvas element
@@ -31,8 +50,8 @@ function main() {
 
   const colourPicker = document.createElement("input");
   colourPicker.type = "color";
-  colourPicker.id = "pen-colour"
-  colourPicker.defaultValue = "#000000"
+  colourPicker.id = "pen-colour";
+  colourPicker.defaultValue = "#000000";
   const colourPickerLabel = document.createElement("label");
   colourPickerLabel.htmlFor = "pen-colour";
   colourPickerLabel.textContent = "Pen Colour";
@@ -58,9 +77,35 @@ function main() {
   eraserWidthSliderLabel.textContent = "Eraser Thickness: 100";
 
   // applying styles
-  for (const [key, value] of Object.entries(toolbarStyle)) {
-    toolbar.style[key] = value;
+  Object.assign(toolbar.style, toolbarStyle);
+
+  for (const button of [clearButton, eraserButton]) {
+    Object.assign(button.style, buttonStyle);
+
+    button.addEventListener("mouseenter", () => {
+      button.style.backgroundColor = "#e5e7eb";
+    });
+
+    button.addEventListener("mouseleave", () => {
+      button.style.backgroundColor = "#f9fafb";
+    });
   }
+
+  penWidthSlider.style.width = "90px";
+  eraserWidthSlider.style.width = "90px";
+
+  for (const label of [
+    penWidthSliderLabel,
+    eraserWidthSliderLabel,
+    colourPickerLabel,
+  ]) {
+    label.style.fontSize = "0.75rem";
+    label.style.color = "#6b7280";
+    label.style.whiteSpace = "nowrap";
+  }
+
+  colourPicker.style.border = "1px solid #e5e7eb";
+  colourPicker.style.borderRadius = "8px";
 
   // append all elements
   document.body.appendChild(canvas);
@@ -99,7 +144,7 @@ function main() {
   colourPicker.oninput = (e) => {
     penColour = e.target.value;
     colourPicker.value = e.target.value;
-  }
+  };
 
   penWidthSlider.oninput = (e) => {
     penWidth = Number(e.target.value);
@@ -133,6 +178,12 @@ function main() {
       isDrawing = false;
     }
   });
+
+  // handling resizing
+  window.addEventListener("resize", () => {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  })
 
   function drawLine(context, x1, y1, x2, y2) {
     context.beginPath();
