@@ -2,11 +2,13 @@ function main() {
   // prevent spamming of bookmarklet
   const existing = document.getElementById("drawlet");
   if (existing) {
-    // since it concerns an outside element like the window, we need to remove it
-    window.removeEventListener("resize", existing.handleResize);
+    // remove external event listeners
+    existing.controller.abort();
     existing.remove();
     return;
   }
+
+  const controller = new AbortController();
 
   // styles
   const toolbarStyle = {
@@ -43,7 +45,8 @@ function main() {
   // because it may not work on bigger websites where there are lots of elements, we create a shadow dom so it doesn't interfere
   const host = document.createElement("div");
   host.id = "drawlet";
-  host.handleResize = handleResize;
+  host.controller = controller;
+
   host.style.position = "fixed";
   host.style.inset = "0";
   host.style.zIndex = "2147483647";
@@ -205,7 +208,7 @@ function main() {
       toolbar.style.display = "flex";
       hideToolbarButton.textContent = "Hide Toolbar";
     }
-  }
+  };
 
   eraserButton.onclick = () => {
     isErasing = !isErasing;
@@ -253,7 +256,7 @@ function main() {
   });
 
   // handling resizing
-  function handleResize () {
+  function handleResize() {
     const savedCanvas = document.createElement("canvas");
     savedCanvas.width = canvas.width;
     savedCanvas.height = canvas.height;
@@ -266,7 +269,9 @@ function main() {
 
     ctx.drawImage(savedCanvas, 0, 0);
   }
-  window.addEventListener("resize", handleResize)
+  window.addEventListener("resize", handleResize, {
+    signal: controller.signal,
+  });
 
   function drawLine(context, x1, y1, x2, y2) {
     context.beginPath();
