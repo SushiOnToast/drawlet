@@ -2,14 +2,7 @@ function main() {
   // prevent spamming of bookmarklet
   const existing = document.getElementById("drawlet");
   if (existing) {
-    const toolbar = existing.shadowRoot.querySelector("#drawlet-toolbar");
-    const toolbarToggle = existing.shadowRoot.querySelector(
-        "#drawlet-toolbar-toggle",
-      );
-
-    if (toolbar, toolbarToggle) {
-      hideToolbar(toolbar, toolbarToggle);
-    }
+    existing.remove();
     return;
   }
 
@@ -201,7 +194,7 @@ function main() {
     ctx.reset();
   };
 
-  function hideToolbar(toolbar, hideToolbarButton) {
+  hideToolbarButton.onclick = () => {
     if (toolbar.style.display === "flex") {
       toolbar.style.display = "none";
       hideToolbarButton.textContent = "Show Toolbar";
@@ -210,8 +203,6 @@ function main() {
       hideToolbarButton.textContent = "Hide Toolbar";
     }
   }
-
-  hideToolbarButton.onclick = () => hideToolbar(toolbar, hideToolbarButton);
 
   eraserButton.onclick = () => {
     isErasing = !isErasing;
@@ -259,7 +250,7 @@ function main() {
   });
 
   // handling resizing
-  window.addEventListener("resize", () => {
+  function handleResize () {
     const savedCanvas = document.createElement("canvas");
     savedCanvas.width = canvas.width;
     savedCanvas.height = canvas.height;
@@ -271,7 +262,8 @@ function main() {
     canvas.height = window.innerHeight;
 
     ctx.drawImage(savedCanvas, 0, 0);
-  });
+  }
+  window.addEventListener("resize", handleResize)
 
   function drawLine(context, x1, y1, x2, y2) {
     context.beginPath();
