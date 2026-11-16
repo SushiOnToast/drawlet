@@ -117,7 +117,12 @@ function main() {
   hideToolbarButton.style.left = "1rem";
   hideToolbarButton.style.pointerEvents = "auto";
 
-  for (const button of [clearButton, eraserButton, undoButton, hideToolbarButton]) {
+  for (const button of [
+    clearButton,
+    eraserButton,
+    undoButton,
+    hideToolbarButton,
+  ]) {
     Object.assign(button.style, buttonStyle);
 
     if (button === hideToolbarButton) {
@@ -157,6 +162,7 @@ function main() {
 
   colourPicker.style.border = "1px solid #e5e7eb";
   colourPicker.style.borderRadius = "8px";
+  colourPicker.style.backgroundColor = "#f9fafb";
 
   // append all elements
   const inputLabelPairs = [
@@ -185,7 +191,7 @@ function main() {
     toolbar.appendChild(pairDiv);
   }
 
-  toolbar.appendChild(undoButton)
+  toolbar.appendChild(undoButton);
 
   // drawing logic
   const ctx = canvas.getContext("2d");
