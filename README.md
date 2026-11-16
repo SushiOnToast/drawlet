@@ -1,5 +1,12 @@
 # Drawlet - Annotate, Everywhere
+
+- [Features](#features)
+- [How to Add Drawlet as a Bookmarklet](#how-to-add-drawlet-as-a-bookmarklet)
+- [How to Use Drawlet](#how-to-use-drawlet)
+
 Drawlet is a bookmarklet that you can turn on anywhere to annotate on your screen. 
+
+![drawlet preview](drawlet_preview.png)
 
 ## Features
 - Drawing on screen
