@@ -7,7 +7,6 @@ function main() {
     top: "1rem",
     left: "50%",
     transform: "translateX(-50%)", // translates by own element length
-    zIndex: "3",
     boxShadow: "0 4px 20px rgba(0,0,0,0.10)",
     border: "1px solid #e5e7eb",
     display: "flex",
@@ -32,6 +31,16 @@ function main() {
     transition: "background-color 0.2s",
   };
 
+  // because it may not work on bigger websites where there are lots of elements, we create a shadow dom so it doesn't interfere
+  const host = document.createElement("div");
+  host.style.position = "fixed";
+  host.style.inset = "0";
+  host.style.zIndex = "2147483647";
+  host.style.pointerEvents = "none";
+  document.body.appendChild(host);
+
+  const shadow = host.attachShadow({ mode: "open" });
+
   // creating the canvas element
   const canvas = document.createElement("canvas");
   canvas.width = window.innerWidth;
@@ -39,7 +48,7 @@ function main() {
   canvas.style.position = "absolute";
   canvas.style.top = "0";
   canvas.style.left = "0";
-  canvas.style.zIndex = "2";
+  canvas.style.pointerEvents = "auto";
 
   // creating the toolbar
   const toolbar = document.createElement("div");
@@ -79,6 +88,7 @@ function main() {
 
   // applying styles
   Object.assign(toolbar.style, toolbarStyle);
+  toolbar.style.pointerEvents = "auto";
 
   for (const button of [clearButton, eraserButton]) {
     Object.assign(button.style, buttonStyle);
@@ -113,8 +123,8 @@ function main() {
   colourPicker.style.borderRadius = "8px";
 
   // append all elements
-  document.body.appendChild(canvas);
-  document.body.appendChild(toolbar);
+  shadow.appendChild(canvas);
+  shadow.appendChild(toolbar);
   toolbar.appendChild(clearButton);
   toolbar.appendChild(eraserButton);
   toolbar.appendChild(colourPickerLabel);
