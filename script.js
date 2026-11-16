@@ -1,4 +1,8 @@
 function main() {
+  // prevent spamming of bookmarklet
+  const existing = document.getElementById("drawlet");
+  if (existing) return;
+
   // styles
   const toolbarStyle = {
     width: "fit-content",
@@ -33,6 +37,7 @@ function main() {
 
   // because it may not work on bigger websites where there are lots of elements, we create a shadow dom so it doesn't interfere
   const host = document.createElement("div");
+  host.id = "drawlet";
   host.style.position = "fixed";
   host.style.inset = "0";
   host.style.zIndex = "2147483647";
