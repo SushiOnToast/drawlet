@@ -2,6 +2,8 @@ function main() {
   // prevent spamming of bookmarklet
   const existing = document.getElementById("drawlet");
   if (existing) {
+    // since it concerns an outside element like the window, we need to remove it
+    window.removeEventListener("resize", existing.handleResize);
     existing.remove();
     return;
   }
@@ -41,6 +43,7 @@ function main() {
   // because it may not work on bigger websites where there are lots of elements, we create a shadow dom so it doesn't interfere
   const host = document.createElement("div");
   host.id = "drawlet";
+  host.handleResize = handleResize;
   host.style.position = "fixed";
   host.style.inset = "0";
   host.style.zIndex = "2147483647";
