@@ -76,6 +76,8 @@ function main() {
   clearButton.textContent = "Clear";
   const eraserButton = document.createElement("button");
   eraserButton.textContent = "Eraser: Off";
+  const undoButton = document.createElement("button");
+  undoButton.textContent = "Undo";
 
   // containers with labels
   const colourPicker = document.createElement("input");
@@ -115,7 +117,7 @@ function main() {
   hideToolbarButton.style.left = "1rem";
   hideToolbarButton.style.pointerEvents = "auto";
 
-  for (const button of [clearButton, eraserButton, hideToolbarButton]) {
+  for (const button of [clearButton, eraserButton, undoButton, hideToolbarButton]) {
     Object.assign(button.style, buttonStyle);
 
     if (button === hideToolbarButton) {
@@ -183,12 +185,17 @@ function main() {
     toolbar.appendChild(pairDiv);
   }
 
+  toolbar.appendChild(undoButton)
+
   // drawing logic
   const ctx = canvas.getContext("2d");
   let penColour = "black";
   let isDrawing = false;
   let x = 0;
   let y = 0;
+
+  const strokes = [];
+  let currentStroke = [];
 
   // toolbar settings
   let isErasing = false;
@@ -216,6 +223,8 @@ function main() {
     eraserButton.style.backgroundColor = isErasing ? "LightGreen" : "";
   };
 
+  undoButton.onclick = undo;
+
   colourPicker.oninput = (e) => {
     penColour = e.target.value;
     colourPicker.value = e.target.value;
@@ -236,11 +245,22 @@ function main() {
     isDrawing = true;
     x = e.offsetX;
     y = e.offsetY;
+
+    currentStroke = {
+      points: [{ x: x, y: y }],
+      colour: penColour,
+      width: isErasing ? eraserWidth : penWidth,
+      isErasing: isErasing,
+    };
   });
 
   canvas.addEventListener("mousemove", (e) => {
     if (isDrawing) {
       drawLine(ctx, x, y, e.offsetX, e.offsetY);
+      currentStroke.points.push({
+        x: e.offsetX,
+        y: e.offsetY,
+      });
       x = e.offsetX;
       y = e.offsetY;
     }
@@ -249,11 +269,33 @@ function main() {
   canvas.addEventListener("mouseup", (e) => {
     if (isDrawing) {
       drawLine(ctx, x, y, e.offsetX, e.offsetY);
+      currentStroke.points.push({
+        x: e.offsetX,
+        y: e.offsetY,
+      });
+      strokes.push(currentStroke);
+
+      currentStroke = [];
       x = 0;
       y = 0;
       isDrawing = false;
     }
   });
+
+  window.addEventListener("resize", handleResize, {
+    signal: controller.signal,
+  });
+
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.ctrlKey && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        undo();
+      }
+    },
+    { signal: controller.signal },
+  );
 
   // handling resizing
   function handleResize() {
@@ -269,13 +311,43 @@ function main() {
 
     ctx.drawImage(savedCanvas, 0, 0);
   }
-  window.addEventListener("resize", handleResize, {
-    signal: controller.signal,
-  });
+
+  // redrawing canvas to recreate all the strokes after removing one of them
+  function redrawCanvas(context) {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    for (const stroke of strokes) {
+      context.globalCompositeOperation = isErasing
+        ? "destination-out"
+        : "source-over";
+
+      context.strokeStyle = penColour;
+      context.lineWidth = isErasing ? eraserWidth : penWidth;
+      context.lineCap = "round";
+
+      context.beginPath();
+
+      const firstPt = stroke.points[0];
+      context.moveTo(firstPt.x, firstPt.y);
+
+      for (const point of stroke.points) {
+        context.lineTo(point.x, point.y);
+      }
+
+      context.stroke();
+      context.closePath();
+    }
+  }
+
+  function undo() {
+    if (strokes.length === 0) return;
+    // removing off top of stack
+    strokes.pop();
+
+    redrawCanvas(ctx);
+  }
 
   function drawLine(context, x1, y1, x2, y2) {
-    context.beginPath();
-
     context.globalCompositeOperation = isErasing
       ? "destination-out"
       : "source-over";
@@ -284,6 +356,7 @@ function main() {
     context.lineWidth = isErasing ? eraserWidth : penWidth;
     context.lineCap = "round";
 
+    context.beginPath();
     context.moveTo(x1, y1);
     context.lineTo(x2, y2);
     context.stroke();
