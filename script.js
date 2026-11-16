@@ -1,7 +1,7 @@
 function main() {
   // styles
   const toolbarStyle = {
-    width: "fit-content",
+    width: "60rem",
     height: "auto",
     position: "absolute",
     top: "1rem",
@@ -20,7 +20,8 @@ function main() {
   };
 
   const buttonStyle = {
-    padding: "o.5rem 0.9rem",
+    fontFamily: "monospace",
+    padding: "0.5rem 0.9rem",
     border: "1px solid #e5e7eb",
     borderRadius: "8px",
     backgroundColor: "#f9fafb",
@@ -83,10 +84,13 @@ function main() {
     Object.assign(button.style, buttonStyle);
 
     button.addEventListener("mouseenter", () => {
+      if (button === eraserButton && isErasing) return;
       button.style.backgroundColor = "#e5e7eb";
     });
 
     button.addEventListener("mouseleave", () => {
+      if (button === eraserButton && isErasing) return;
+
       button.style.backgroundColor = "#f9fafb";
     });
   }
@@ -100,6 +104,7 @@ function main() {
     colourPickerLabel,
   ]) {
     label.style.fontSize = "0.75rem";
+    label.style.fontFamily = "monospace";
     label.style.color = "#6b7280";
     label.style.whiteSpace = "nowrap";
   }
@@ -112,12 +117,12 @@ function main() {
   document.body.appendChild(toolbar);
   toolbar.appendChild(clearButton);
   toolbar.appendChild(eraserButton);
-  toolbar.appendChild(colourPicker);
   toolbar.appendChild(colourPickerLabel);
-  toolbar.appendChild(penWidthSlider);
+  toolbar.appendChild(colourPicker);
   toolbar.appendChild(penWidthSliderLabel);
-  toolbar.appendChild(eraserWidthSlider);
+  toolbar.appendChild(penWidthSlider);
   toolbar.appendChild(eraserWidthSliderLabel);
+  toolbar.appendChild(eraserWidthSlider);
 
   // drawing logic
   const ctx = canvas.getContext("2d");
@@ -128,7 +133,7 @@ function main() {
 
   // toolbar settings
   let isErasing = false;
-  let penWidth = 1;
+  let penWidth = Number(penWidthSlider.value);
   let eraserWidth = 100;
 
   clearButton.onclick = () => {
@@ -181,9 +186,18 @@ function main() {
 
   // handling resizing
   window.addEventListener("resize", () => {
+    const savedCanvas = document.createElement("canvas");
+    savedCanvas.width = canvas.width;
+    savedCanvas.height = canvas.height;
+
+    const savedCtx = savedCanvas.getContext("2d");
+    savedCtx.drawImage(canvas, 0, 0);
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-  })
+
+    ctx.drawImage(savedCanvas, 0, 0);
+  });
 
   function drawLine(context, x1, y1, x2, y2) {
     context.beginPath();
