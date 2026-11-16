@@ -29,6 +29,34 @@ function main() {
   const eraserButton = document.createElement("button");
   eraserButton.textContent = "Toggle Eraser";
 
+  const colourPicker = document.createElement("input");
+  colourPicker.type = "color";
+  colourPicker.id = "pen-colour"
+  colourPicker.defaultValue = "#000000"
+  const colourPickerLabel = document.createElement("label");
+  colourPickerLabel.htmlFor = "pen-colour";
+  colourPickerLabel.textContent = "Pen Colour";
+
+  const penWidthSlider = document.createElement("input");
+  penWidthSlider.type = "range";
+  penWidthSlider.min = "1";
+  penWidthSlider.max = "50";
+  penWidthSlider.defaultValue = "10";
+  penWidthSlider.id = "pen-width-slider";
+  const penWidthSliderLabel = document.createElement("label");
+  penWidthSliderLabel.htmlFor = "pen-width-slider";
+  penWidthSliderLabel.textContent = "Pen Thickness: 10";
+
+  const eraserWidthSlider = document.createElement("input");
+  eraserWidthSlider.type = "range";
+  eraserWidthSlider.min = "1";
+  eraserWidthSlider.max = "500";
+  eraserWidthSlider.defaultValue = "100";
+  eraserWidthSlider.id = "eraser-width-slider";
+  const eraserWidthSliderLabel = document.createElement("label");
+  eraserWidthSliderLabel.htmlFor = "eraser-width-slider";
+  eraserWidthSliderLabel.textContent = "Eraser Thickness: 100";
+
   // applying styles
   for (const [key, value] of Object.entries(toolbarStyle)) {
     toolbar.style[key] = value;
@@ -39,10 +67,16 @@ function main() {
   document.body.appendChild(toolbar);
   toolbar.appendChild(clearButton);
   toolbar.appendChild(eraserButton);
+  toolbar.appendChild(colourPicker);
+  toolbar.appendChild(colourPickerLabel);
+  toolbar.appendChild(penWidthSlider);
+  toolbar.appendChild(penWidthSliderLabel);
+  toolbar.appendChild(eraserWidthSlider);
+  toolbar.appendChild(eraserWidthSliderLabel);
 
   // drawing logic
   const ctx = canvas.getContext("2d");
-  const strokeColour = "black";
+  let penColour = "black";
   let isDrawing = false;
   let x = 0;
   let y = 0;
@@ -58,6 +92,21 @@ function main() {
 
   eraserButton.onclick = () => {
     isErasing = !isErasing;
+  };
+
+  colourPicker.oninput = (e) => {
+    penColour = e.target.value;
+    colourPicker.value = e.target.value;
+  }
+
+  penWidthSlider.oninput = (e) => {
+    penWidth = Number(e.target.value);
+    penWidthSliderLabel.textContent = "Pen Thickness: " + penWidth;
+  };
+
+  eraserWidthSlider.oninput = (e) => {
+    eraserWidth = Number(e.target.value);
+    eraserWidthSliderLabel.textContent = "Eraser Thickness: " + eraserWidth;
   };
 
   canvas.addEventListener("mousedown", (e) => {
@@ -90,8 +139,10 @@ function main() {
       ? "destination-out"
       : "source-over";
 
-    context.strokeStyle = strokeColour;
+    context.strokeStyle = penColour;
     context.lineWidth = isErasing ? eraserWidth : penWidth;
+    context.lineCap = "round";
+
     context.moveTo(x1, y1);
     context.lineTo(x2, y2);
     context.stroke();
